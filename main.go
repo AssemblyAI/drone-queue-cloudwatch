@@ -79,7 +79,7 @@ func reportBuilds(c drone.Client, cw CloudwatchClient, builds []*drone.Stage) {
 
 }
 
-func putCloudwatchMetric(c CloudwatchClient, d []types.Dimension) {
+func putCloudwatchMetric(c CloudwatchClient, d []types.Dimension) error {
 
 	md := []types.MetricDatum{
 		{
@@ -100,8 +100,10 @@ func putCloudwatchMetric(c CloudwatchClient, d []types.Dimension) {
 
 	if err != nil {
 		fmt.Printf("Error putting metric data - %s\n", err.Error())
+		return err
 	} else {
 		fmt.Println("PutMetric success!")
+		return nil
 	}
 }
 
