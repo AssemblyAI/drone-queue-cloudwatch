@@ -8,6 +8,7 @@ on:
     - '**/LICENSE.txt'
     - '**/.env**'
     - 'terraform/**'
+    - '.drone.yml'
 
 jobs:
   ci:

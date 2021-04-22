@@ -19,10 +19,16 @@ steps:
   pull: if-not-present
   commands:
   - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o main ./
+  when:
+    event:
+    - push
+    branch:
+    - main
 
 - name: publish
   pull: always
   image: public.ecr.aws/s7w0t2z5/docker:latest
+  commands:
   - zip latest.zip main
   - zip ${DRONE_COMMIT_SHA:0:7}.zip main
   - aws s3 cp latest.zip s3://$BUCKET/$PROJECT_KEY/
