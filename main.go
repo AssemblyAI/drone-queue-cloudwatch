@@ -8,9 +8,9 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
-	"github.com/aws/aws-sdk-go/aws"
 
 	"github.com/drone/drone-go/drone"
 )
@@ -79,7 +79,7 @@ func reportBuilds(c drone.Client, cw CloudwatchClient, builds []*drone.Stage) {
 
 }
 
-func putCloudwatchMetric(c CloudwatchClient, d []types.Dimension) {
+func putCloudwatchMetric(c CloudwatchClient, d []types.Dimension) error {
 
 	md := []types.MetricDatum{
 		{
@@ -100,8 +100,10 @@ func putCloudwatchMetric(c CloudwatchClient, d []types.Dimension) {
 
 	if err != nil {
 		fmt.Printf("Error putting metric data - %s\n", err.Error())
+		return err
 	} else {
 		fmt.Println("PutMetric success!")
+		return nil
 	}
 }
 

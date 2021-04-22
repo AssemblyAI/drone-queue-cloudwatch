@@ -9,9 +9,32 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
 	"github.com/stretchr/testify/assert"
 )
 
+/*
+
+// TODO: Come back to this to ensure we aren't sending duplicate dimensions to Cloudwatch
+
+func ensureUniqueMap(m []map[string]string) error {
+	tmpMap := make(map[string]string)
+
+	fmt.Println(m)
+
+	for _, val := range m {
+		for k, v := range val {
+			if _, ok := tmpMap[k]; ok {
+				fmt.Printf("Found duplicate key %s\n", k)
+				return errors.New("Duplicate key found")
+			}
+			tmpMap[k] = v
+		}
+	}
+
+	return nil
+}
+*/
 type mockCloudwatchClient struct{}
 
 func (c mockCloudwatchClient) PutMetricData(ctx context.Context, params *cloudwatch.PutMetricDataInput, optFns ...func(*cloudwatch.Options)) (*cloudwatch.PutMetricDataOutput, error) {
@@ -44,7 +67,20 @@ func TestGetQueuedBuilds(t *testing.T) {
 
 	r := getQueuedBuilds(c)
 
-	assert.Len(t, r, 1, fmt.Sprintf("Length of builds was %d", len(r)))
+	assert.Len(t, r, 2, fmt.Sprintf("Length of builds was %d", len(r)))
+	assert.Equal(t, 123, int(r[0].ID))
+	assert.Equal(t, 124, int(r[1].ID))
+
+	expectedStd := make(map[string]string)
+	expectedStd["class"] = "standard"
+	expectedStd["os"] = "linux"
+
+	expectedGPU := make(map[string]string)
+	expectedGPU["class"] = "gpu"
+	expectedGPU["os"] = "linux"
+
+	assert.Equal(t, expectedStd, r[0].Labels)
+	assert.Equal(t, expectedGPU, r[1].Labels)
 }
 
 func TestVerifyEnvVars(t *testing.T) {
@@ -76,10 +112,36 @@ func TestReportBuilds(t *testing.T) {
 	reportBuilds(c, cwc, s)
 }
 
+func TestPutCloudwatchMetric(t *testing.T) {
+	cwc := mockCloudwatchClient{}
+	var dimensions []types.Dimension
+
+	err := putCloudwatchMetric(cwc, dimensions)
+
+	assert.Equal(t, nil, err)
+}
+
 func mockHandler(w http.ResponseWriter, r *http.Request) {
 	userBody := `{"id":1,"login":"ciuser","email":"","machine":false,"admin":true,"active":true,"avatar":"https://avatars.githubusercontent.com/u/1?v=4","syncing":false,"synced":1617653050,"created":1615672091,"updated":1615672091,"last_login":1617652785}`
 
-	queueBody := `[{"id":123,"repo_id":2,"build_id":4,"number":1,"name":"ci","kind":"pipeline","type":"docker","status":"running","errignore":false,"exit_code":0,"machine":"cimachine","os":"linux","arch":"amd64","started":1617666144,"stopped":0,"created":1617666144,"updated":1617666144,"version":3,"on_success":true,"on_failure":false,"labels":{"class":"standard","os":"linux"}}]`
+	queueBody := `[
+		{
+		"id":123,"repo_id":2,"build_id":4,"number":1,"name":"ci",
+		"kind":"pipeline","type":"docker","status":"running","errignore":false,
+		"exit_code":0,"machine":"cimachine","os":"linux","arch":"amd64",
+		"started":1617666144,"stopped":0,"created":1617666144,"updated":1617666144,"version":3,
+		"on_success":true,"on_failure":false,
+		"labels":{"class":"standard","os":"linux"}
+		},
+		{
+		"id":124,"repo_id":2,"build_id":4,"number":1,"name":"ci",
+		"kind":"pipeline","type":"docker","status":"running","errignore":false,
+		"exit_code":0,"machine":"cimachine","os":"linux","arch":"amd64",
+		"started":1617666144,"stopped":0,"created":1617666144,"updated":1617666144,"version":3,
+		"on_success":true,"on_failure":false,
+		"labels":{"class":"gpu","os":"linux"}
+		}
+	]`
 
 	routes := []struct {
 		verb string
