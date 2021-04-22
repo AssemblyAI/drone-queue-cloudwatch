@@ -22,7 +22,7 @@ See the `terraform/` directory for reference.
 
 ## Autoscaling
 
-**Note:** You want to use the "Sum" statistic when configuring autoscaling
+**Note:** You want to use the "Sum" statistic when configuring autoscaling. You should also treat missing data as "Not Breaching"
 
 This application assumes each Drone worker group passes the same `DRONE_RUNNER_LABELS` to all workers.
 
