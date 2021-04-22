@@ -13,11 +13,16 @@ node:
   class: standard
 
 steps:
-- name: build-and-publish
-  pull: always
-  image: public.ecr.aws/s7w0t2z5/docker:latest
+
+- name: build
+  image: golang:1.16-stretch
+  pull: if-not-present
   commands:
   - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o main ./
+
+- name: publish
+  pull: always
+  image: public.ecr.aws/s7w0t2z5/docker:latest
   - zip latest.zip main
   - zip ${DRONE_COMMIT_SHA:0:7}.zip main
   - aws s3 cp latest.zip s3://$BUCKET/$PROJECT_KEY/
@@ -32,7 +37,7 @@ steps:
     branch:
     - main
 
-- name: deploy-new-lambda-version
+- name: deploy
   pull: if-not-present
   image: public.ecr.aws/s7w0t2z5/docker:latest
   commands:
