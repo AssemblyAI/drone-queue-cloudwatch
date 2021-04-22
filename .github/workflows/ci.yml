@@ -1,0 +1,41 @@
+name: "CI"
+
+on:
+  # Run CI on any push
+  push:
+    paths-ignore:
+    - '**/README.md'
+    - '**/LICENSE.txt'
+    - '**/.env**'
+    - 'terraform/**'
+
+jobs:
+  ci:
+    name: CI Pipeline
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: true
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '^1.16'
+
+    - name: Vet
+      run: go vet -race ./
+
+    - name: Unit tests
+      run: go test -v ./
+
+    - name: Build
+      run: go build -o main ./
+      env:
+        GOOS: linux 
+        GOARCH: amd64 
+        CGO_ENABLED: 0
+    

@@ -1,0 +1,51 @@
+---
+
+kind: pipeline
+type: docker
+name: work
+
+platform:
+  os: linux
+  arch: amd64
+
+node:
+  os: linux
+  class: standard
+
+steps:
+- name: build-and-publish
+  pull: always
+  image: public.ecr.aws/s7w0t2z5/docker:latest
+  commands:
+  - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o main ./
+  - zip latest.zip main
+  - zip ${DRONE_COMMIT_SHA:0:7}.zip main
+  - aws s3 cp latest.zip s3://$BUCKET/$PROJECT_KEY/
+  - aws s3 cp ${DRONE_COMMIT_SHA:0:7}.zip s3://$BUCKET/$PROJECT_KEY/
+  environment:
+    AWS_DEFAULT_REGION: us-west-2
+    BUCKET: aai-lambda-artifacts
+    PROJECT_KEY: drone-queue-cloudwatch
+  when:
+    event:
+    - push
+    branch:
+    - main
+
+- name: deploy-new-lambda-version
+  pull: if-not-present
+  image: public.ecr.aws/s7w0t2z5/docker:latest
+  commands:
+  # Better safe than debugging permission denied errors
+  - chmod +x deploy/lambda.sh
+  - deploy/lambda.sh
+  environment:
+    AWS_DEFAULT_REGION: us-west-2
+    BUCKET: aai-lambda-artifacts
+    PROJECT_KEY: drone-queue-cloudwatch
+    FUNCTION_NAME: drone-queue-cloudwatch
+  when:
+    event:
+    - push
+    branch:
+    - main
