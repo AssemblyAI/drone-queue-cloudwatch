@@ -24,6 +24,9 @@ steps:
     - push
     branch:
     - main
+    paths:
+      exclude:
+      - 'README.md'
 
 - name: publish
   pull: always
@@ -42,6 +45,9 @@ steps:
     - push
     branch:
     - main
+    paths:
+      exclude:
+      - 'README.md'
 
 - name: deploy
   pull: if-not-present
@@ -60,3 +66,6 @@ steps:
     - push
     branch:
     - main
+    paths:
+      exclude:
+      - 'README.md'
