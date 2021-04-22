@@ -30,7 +30,7 @@ func TestNewDroneClient(t *testing.T) {
 
 	_, err := c.Self()
 
-	assert.Equal(t, nil, err, fmt.Sprintf("Error was %s", err.Error()))
+	assert.Equal(t, nil, err, "Encountered unexpected error")
 }
 
 func TestGetQueuedBuilds(t *testing.T) {
