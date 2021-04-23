@@ -20,8 +20,8 @@ trigger:
   paths:
     exclude:
     - README.md
-    - terraform/**
-    - .github/**
+    - "terraform/*"
+    - ".github/*"
     - .gitignore
 
 
