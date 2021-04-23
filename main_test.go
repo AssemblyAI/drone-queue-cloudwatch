@@ -135,7 +135,7 @@ func mockHandler(w http.ResponseWriter, r *http.Request) {
 		},
 		{
 		"id":124,"repo_id":2,"build_id":4,"number":1,"name":"ci",
-		"kind":"pipeline","type":"docker","status":"running","errignore":false,
+		"kind":"pipeline","type":"docker","status":"pending","errignore":false,
 		"exit_code":0,"machine":"cimachine","os":"linux","arch":"amd64",
 		"started":1617666144,"stopped":0,"created":1617666144,"updated":1617666144,"version":3,
 		"on_success":true,"on_failure":false,
