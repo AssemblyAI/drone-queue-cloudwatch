@@ -37,6 +37,8 @@ func verifyEnvVars() error {
 	return nil
 }
 
+// Retrieve all builds, pending or running
+// We'll filter downstream
 func getQueuedBuilds(c drone.Client) []*drone.Stage {
 	s, err := c.Queue()
 
@@ -59,22 +61,28 @@ func reportBuilds(c drone.Client, cw CloudwatchClient, builds []*drone.Stage) {
 
 	// Iterate through pending builds
 	for _, b := range builds {
-		// Create dimensions array for each queued build
-		var dimensions []types.Dimension
 
-		// b.Labels is a map[string]string representing the builds node labels
-		for k, v := range b.Labels {
-			// Build CW metric dimensions using build's node labels
-			dimensions = append(dimensions, types.Dimension{Name: aws.String(k), Value: aws.String(v)})
+		// Running builds are good
+		// A running build doesn't need a new worker node
+		if b.Status != "running" {
+
+			// Create dimensions array for each queued build
+			var dimensions []types.Dimension
+
+			// b.Labels is a map[string]string representing the builds node labels
+			for k, v := range b.Labels {
+				// Build CW metric dimensions using build's node labels
+				dimensions = append(dimensions, types.Dimension{Name: aws.String(k), Value: aws.String(v)})
+
+			}
+
+			// Write metric for this queued build to Cloudwatch
+			putCloudwatchMetric(
+				cw,
+				dimensions,
+			)
 
 		}
-
-		// Write metric for this queued build to Cloudwatch
-		putCloudwatchMetric(
-			cw,
-			dimensions,
-		)
-
 	}
 
 }
