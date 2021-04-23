@@ -19,5 +19,5 @@ terraform {
       version = "3.37.0"
       source  = "hashicorp/aws"
     }
-  } 
+  }
 }

@@ -3,16 +3,14 @@ data "aws_iam_policy_document" "role" {
     actions = ["sts:AssumeRole"]
     effect  = "Allow"
     principals {
-      type = "Service"
-      // We can add ecs when we switch to running this on ECS
+      type        = "Service"
       identifiers = ["lambda.amazonaws.com"]
     }
   }
 }
 
 resource "aws_iam_role" "lambda" {
-  name = "drone-queue-cloudwatch"
-
+  name               = "drone-queue-cloudwatch"
   assume_role_policy = data.aws_iam_policy_document.role.json
 }
 

@@ -8,13 +8,13 @@ resource "aws_cloudwatch_event_rule" "cron" {
 }
 
 resource "aws_cloudwatch_event_target" "cron" {
-  rule      = aws_cloudwatch_event_rule.cron.name
-  arn       = aws_lambda_function.lambda.arn
+  rule = aws_cloudwatch_event_rule.cron.name
+  arn  = aws_lambda_function.lambda.arn
 }
 
 
 resource "aws_cloudwatch_log_group" "log_group" {
-  name = "/aws/lambda/${aws_lambda_function.lambda.function_name}"
+  name              = "/aws/lambda/${aws_lambda_function.lambda.function_name}"
   retention_in_days = 1
-  tags = local.common_tags
+  tags              = local.common_tags
 }
