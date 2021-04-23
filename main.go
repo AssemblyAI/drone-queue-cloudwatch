@@ -56,7 +56,7 @@ func reportBuilds(c drone.Client, cw CloudwatchClient, builds []*drone.Stage) {
 	// The cloudwatch alarm needs to treat missing data as not breaching
 	if len(builds) < 1 {
 		fmt.Println("Build queue is empty")
-		os.Exit(0)
+		return
 	}
 
 	// Iterate through pending builds
