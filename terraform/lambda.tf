@@ -19,7 +19,7 @@ resource "aws_lambda_function" "lambda" {
       CLOUDWATCH_METRICS_NAMESPACE = var.cloudwatch_metrics_namespace
     }
   }
-  
+
   // Ignore changes to the source
   // CD will make updates to that and we don't want Terraform interfering
   lifecycle {
