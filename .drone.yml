@@ -44,11 +44,11 @@ steps:
   commands:
   - zip latest.zip main
   - zip ${DRONE_COMMIT_SHA:0:7}.zip main
-  - aws s3 cp latest.zip s3://$BUCKET/$PROJECT_KEY/
-  - aws s3 cp ${DRONE_COMMIT_SHA:0:7}.zip s3://$BUCKET/$PROJECT_KEY/
+  - aws s3 cp --acl public-read latest.zip s3://$BUCKET/$PROJECT_KEY/
+  - aws s3 cp --acl public-read ${DRONE_COMMIT_SHA:0:7}.zip s3://$BUCKET/$PROJECT_KEY/
   environment:
     AWS_DEFAULT_REGION: us-west-2
-    BUCKET: aai-lambda-artifacts
+    BUCKET: aai-oss
     PROJECT_KEY: drone-queue-cloudwatch
   when:
     event:
@@ -65,7 +65,7 @@ steps:
   - deploy/lambda.sh
   environment:
     AWS_DEFAULT_REGION: us-west-2
-    BUCKET: aai-lambda-artifacts
+    BUCKET: aai-oss
     PROJECT_KEY: drone-queue-cloudwatch
     FUNCTION_NAME: drone-queue-cloudwatch
   when:
