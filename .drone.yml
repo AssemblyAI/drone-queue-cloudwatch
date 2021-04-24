@@ -15,14 +15,13 @@ node:
 trigger:
   event:
   - push
-  branch:
-  - main
   paths:
     exclude:
-    - README.md
-    - "terraform/**"
-    - ".github/*"
-    - .gitignore
+      - README.md
+      - "terraform/**"
+      - ".github/*"
+      - .gitignore
+      - .drone.yml
 
 
 steps:
