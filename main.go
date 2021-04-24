@@ -64,7 +64,7 @@ func reportBuilds(c drone.Client, cw CloudwatchClient, builds []*drone.Stage) {
 
 		// Running builds are good
 		// A running build doesn't need a new worker node
-		if b.Status != "running" {
+		if b.Status == "pending" {
 
 			// Create dimensions array for each queued build
 			var dimensions []types.Dimension
@@ -80,18 +80,36 @@ func reportBuilds(c drone.Client, cw CloudwatchClient, builds []*drone.Stage) {
 			putCloudwatchMetric(
 				cw,
 				dimensions,
+				"QueuedBuilds",
 			)
+		} else if b.Status == "running" {
+			// Create dimensions array for each queued build
+			var dimensions []types.Dimension
 
+			// b.Labels is a map[string]string representing the builds node labels
+			for k, v := range b.Labels {
+				// Build CW metric dimensions using build's node labels
+				dimensions = append(dimensions, types.Dimension{Name: aws.String(k), Value: aws.String(v)})
+
+			}
+
+			putCloudwatchMetric(
+				cw,
+				dimensions,
+				"RunningBuilds",
+			)
+		} else {
+			fmt.Printf("Not putting metric for build with status %s\n", b.Status)
 		}
 	}
 
 }
 
-func putCloudwatchMetric(c CloudwatchClient, d []types.Dimension) error {
+func putCloudwatchMetric(c CloudwatchClient, d []types.Dimension, metricName string) error {
 
 	md := []types.MetricDatum{
 		{
-			MetricName:        aws.String("QueuedBuilds"),
+			MetricName:        aws.String(metricName),
 			Dimensions:        d,
 			Value:             aws.Float64(1.0),
 			StorageResolution: aws.Int32(60),
