@@ -116,7 +116,7 @@ func TestPutCloudwatchMetric(t *testing.T) {
 	cwc := mockCloudwatchClient{}
 	var dimensions []types.Dimension
 
-	err := putCloudwatchMetric(cwc, dimensions)
+	err := putCloudwatchMetric(cwc, dimensions, "QueuedBuilds")
 
 	assert.Equal(t, nil, err)
 }
