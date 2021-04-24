@@ -20,6 +20,10 @@ This is meant to be run as a cron job.
 
 See the `terraform/` directory for reference.
 
+The zip artifact is accessible in the `aai-oss` S3 bucket in us-west-2
+- To use a specific version of the code, use the `drone-queue-cloudwatch/<commit sha>.zip` object key
+- To use the latest version, use the `drone-queue-cloudwatch/latest.zip` object key
+
 ## Autoscaling
 
 **Note:** You want to use the "Sum" statistic when configuring autoscaling. You should also treat missing data as "Not Breaching"
