@@ -112,12 +112,12 @@ resource "aws_autoscaling_group" "drone_gpu_ec2_asg" {
 
 }
 
-resource "aws_autoscaling_policy" "gpu_drone_queue_up" {
+resource "aws_autoscaling_policy" "gpu_drone_queue" {
   name                   = "drone-build-queue-depth-up"
-  scaling_adjustment     = 2 // Launch 2
+  scaling_adjustment     = 1 // Launch 1
   adjustment_type        = "ChangeInCapacity"
   policy_type            = "SimpleScaling"
-  cooldown               = 180 // 3 minutes
+  cooldown               = 600 // 10 minutes
   autoscaling_group_name = aws_autoscaling_group.drone_gpu_ec2_asg.name
 }
 
@@ -126,7 +126,7 @@ resource "aws_autoscaling_policy" "gpu_drone_queue_down" {
   scaling_adjustment     = -1 // Remove 1
   adjustment_type        = "ChangeInCapacity"
   policy_type            = "SimpleScaling"
-  cooldown               = 900 // 15 minutes
+  cooldown               = 300 // 5 minutes
   autoscaling_group_name = aws_autoscaling_group.drone_gpu_ec2_asg.name
 }
 
@@ -138,12 +138,17 @@ resource "aws_cloudwatch_metric_alarm" "gpu_worker_queue_depth" {
   namespace                 = "Drone"
   period                    = "60"
   statistic                 = "Sum"
-  threshold                 = "3"
+  threshold                 = "1"
   datapoints_to_alarm       = 2
-  alarm_description         = "Drone build queue depth for GPU workers"
+  alarm_description         = "Number of queued GPU builds"
   insufficient_data_actions = []
   treat_missing_data        = "notBreaching"
   actions_enabled           = true
+
+  dimensions = {
+    "os"    = "linux"
+    "class" = "gpu"
+  }
 
   tags = {
     env           = "cicd"
@@ -154,16 +159,69 @@ resource "aws_cloudwatch_metric_alarm" "gpu_worker_queue_depth" {
     "drone/class" = "gpu"
   }
 
-  dimensions = {
-    "os"    = "linux"
-    "class" = "gpu"
+  alarm_actions = [
+    aws_autoscaling_policy.gpu_drone_queue.arn
+  ]
+}
+
+resource "aws_cloudwatch_metric_alarm" "gpu_worker_scale_down" {
+  alarm_name                = "drone-gpu-running-pending-builds"
+  comparison_operator       = "LessThanOrEqualToThreshold"
+  threshold                 = "0"
+  datapoints_to_alarm       = 10
+  evaluation_periods        = 10
+  alarm_description         = "Scale down Drone GPU workers when there are no running or queued builds"
+  insufficient_data_actions = []
+  treat_missing_data        = "breaching"
+  actions_enabled           = true
+
+    metric_query {
+    id          = "e1"
+    expression  = "FILL(running, 0) + FILL(queued, 0)"
+    label       = "RunningPlusQueued"
+    return_data = true
+  }
+
+  metric_query {
+    id = "running"
+    metric {
+      metric_name = "RunningBuilds"
+      namespace   = "Drone"
+      period      = "60"
+      stat        = "Sum"
+      unit        = "Count"
+      dimensions = {
+        os    = "linux"
+        class = "gpu"
+      }
+    }
+  }
+
+  metric_query {
+    id = "queued"
+    metric {
+      metric_name = "QueuedBuilds"
+      namespace   = "Drone"
+      period      = "60"
+      stat        = "Sum"
+      unit        = "Count"
+      dimensions = {
+        os    = "linux"
+        class = "gpu"
+      }
+    }
+  }
+
+  tags = {
+    env           = "cicd"
+    Name          = "drone-gpu-running-builds"
+    owner         = "engineering"
+    tier          = "cicd"
+    "drone/type"  = "worker"
+    "drone/class" = "gpu"
   }
 
   alarm_actions = [
-    aws_autoscaling_policy.standard_drone_queue_up.arn
-  ]
-
-  ok_actions = [ 
-    aws_autoscaling_policy.standard_drone_queue_down.arn
+    aws_autoscaling_policy.gpu_drone_queue_down.arn
   ]
 }
