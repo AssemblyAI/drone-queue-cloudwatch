@@ -57,4 +57,3 @@ node:
 ```
 
 Your autoscaling trigger would launch more instances / containers for a given worker group based on how many queued builds there are.
-

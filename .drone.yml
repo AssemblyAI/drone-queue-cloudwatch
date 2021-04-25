@@ -1,5 +1,4 @@
 ---
-
 kind: pipeline
 type: docker
 name: work
@@ -19,14 +18,13 @@ trigger:
   - main
   paths:
     exclude:
-    - README.md
-    - "terraform/**"
-    - ".github/*"
-    - .gitignore
+      - README.md
+      - "terraform/**"
+      - ".github/*"
+      - .gitignore
 
 
 steps:
-
 - name: build
   image: golang:1.16-stretch
   pull: if-not-present
