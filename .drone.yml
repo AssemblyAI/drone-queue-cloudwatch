@@ -1,5 +1,4 @@
 ---
-
 kind: pipeline
 type: docker
 name: work
@@ -15,17 +14,17 @@ node:
 trigger:
   event:
   - push
+  branch:
+  - main
   paths:
     exclude:
       - README.md
       - "terraform/**"
       - ".github/*"
       - .gitignore
-      - .drone.yml
 
 
 steps:
-
 - name: build
   image: golang:1.16-stretch
   pull: if-not-present
