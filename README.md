@@ -57,3 +57,5 @@ node:
 ```
 
 Your autoscaling trigger would launch more instances / containers for a given worker group based on how many queued builds there are.
+
+To prevent scale in events from disrupting running builds, use a metrics expression to ensure you don't scale down too far if there are running builds.
