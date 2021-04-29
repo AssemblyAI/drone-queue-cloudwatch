@@ -12,10 +12,6 @@ node:
   class: standard
 
 trigger:
-  event:
-  - push
-  branch:
-  - main
   paths:
     exclude:
       - README.md
@@ -23,6 +19,11 @@ trigger:
       - ".github/*"
       - .gitignore
       - .gitattributes
+      - LICENSE.txt
+  event:
+  - push
+  branch:
+  - main
 
 
 steps:
