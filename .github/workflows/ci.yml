@@ -7,10 +7,10 @@ on:
     - '**/README.md'
     - '**/LICENSE.txt'
     - '**/.env**'
-    - 'terraform/**'
-    - '.drone.yml'
-    - .gitattributes
-    - LICENSE.txt
+    - '**/terraform/**'
+    - '**/.drone.yml'
+    - '**/.gitattributes'
+    - '**/LICENSE.txt'
 
 jobs:
   ci:
