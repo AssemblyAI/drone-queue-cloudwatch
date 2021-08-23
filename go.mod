@@ -4,9 +4,9 @@ go 1.16
 
 require (
 	github.com/aws/aws-lambda-go v1.24.0
-	github.com/aws/aws-sdk-go-v2 v1.6.0
+	github.com/aws/aws-sdk-go-v2 v1.8.1
 	github.com/aws/aws-sdk-go-v2/config v1.3.0
-	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.4.1
+	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.7.1
 	github.com/drone/drone-go v1.6.0
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
